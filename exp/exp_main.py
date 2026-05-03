@@ -1,7 +1,7 @@
 from data_provider.data_factory import data_provider
 from exp.exp_basic import Exp_Basic
-from models import Informer, Autoformer, Transformer, DLinear, Linear, NLinear, PatchTST, SegRNN, CycleNet, \
-    iTransformer, TimeXer, TQNet, TQDLinear, TQPatchTST, TQiTransformer
+from models import Informer, Autoformer, Transformer, DLinear, Linear, NLinear, PatchTST, SegRNN, CycleNet, ZWF修改loss版, \
+    iTransformer, TimeXer, TQNet, TQDLinear, TQPatchTST, TQiTransformer, ZWF, TQNet_1, TQNet_2
 from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
 from utils.metrics import metric
 
@@ -17,13 +17,16 @@ import time
 import warnings
 import matplotlib.pyplot as plt
 import numpy as np
-
+import logging
 warnings.filterwarnings('ignore')
-
 
 class Exp_Main(Exp_Basic):
     def __init__(self, args):
         super(Exp_Main, self).__init__(args)
+        self.use_miss = args.use_miss
+        self.enc_in = args.enc_in
+
+        self.logger = logging.getLogger(f"logger_{args.logger_uique_id}")
 
     def _build_model(self):
         model_dict = {
@@ -41,12 +44,19 @@ class Exp_Main(Exp_Basic):
             'TQNet': TQNet,
             'TQDLinear': TQDLinear,
             'TQPatchTST': TQPatchTST,
-            'TQiTransformer': TQiTransformer
+            'TQiTransformer': TQiTransformer,
+            'ZWF':ZWF,
+            'TQNet_1': TQNet_1,
+            'TQNet_2': TQNet_2,
+            '修改loss版': ZWF修改loss版
         }
         model = model_dict[self.args.model].Model(self.args).float()
 
         if self.args.use_multi_gpu and self.args.use_gpu:
             model = nn.DataParallel(model, device_ids=self.args.device_ids)
+
+        logger = logging.getLogger(f"logger_{self.args.logger_uique_id}")
+        logger.info("模型总的参数数量: {:.4f}M".format(sum(p.numel() for p in model.parameters()) / 1000000.0))
         return model
 
     def _get_data(self, flag):
@@ -79,7 +89,9 @@ class Exp_Main(Exp_Basic):
                 # encoder - decoder
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
-                        if any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
+                        if "ZWF" in self.args.model:
+                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                        elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
                             outputs = self.model(batch_x, batch_cycle)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST'}):
@@ -90,7 +102,9 @@ class Exp_Main(Exp_Basic):
                             else:
                                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
-                    if any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
+                    if "ZWF" in self.args.model:
+                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                    elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
                         outputs = self.model(batch_x, batch_cycle)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST'}):
                         outputs = self.model(batch_x)
@@ -106,14 +120,26 @@ class Exp_Main(Exp_Basic):
                 pred = outputs.detach().cpu()
                 true = batch_y.detach().cpu()
 
+                if np.isnan(pred.numpy()).any() :
+                    print("Warning: Pred contains NaN values!")
+                if np.isnan(true.numpy()).any():
+                    print("Warning: True contains NaN values!")
+                
                 loss = criterion(pred, true)
+                # print("loss的类型", type(loss), "loss的值", loss.item())
+                if np.isnan(loss.item()).any():
+                    print("Warning: Loss is NaN!")
 
                 total_loss.append(loss)
+        # print(f"Validation losses are: {[l.item() for l in total_loss]}")  # 打印每个批次的损失值
         total_loss = np.average(total_loss)
-        self.model.train()
+        if np.isnan(total_loss).any():
+            print("Warning: Total validation loss is NaN!")
+        self.model.train() # 调整模型回到训练模式
         return total_loss
 
     def train(self, setting):
+
         train_data, train_loader = self._get_data(flag='train')
         vali_data, vali_loader = self._get_data(flag='val')
         test_data, test_loader = self._get_data(flag='test')
@@ -125,7 +151,7 @@ class Exp_Main(Exp_Basic):
         time_now = time.time()
 
         train_steps = len(train_loader)
-        early_stopping = EarlyStopping(patience=self.args.patience, verbose=True)
+        early_stopping = EarlyStopping(logger_uique_id=self.args.logger_uique_id, patience=self.args.patience, verbose=True)
 
         model_optim = self._select_optimizer()
         criterion = self._select_criterion()
@@ -149,12 +175,12 @@ class Exp_Main(Exp_Basic):
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_cycle) in enumerate(train_loader):
                 iter_count += 1
                 model_optim.zero_grad()
-                batch_x = batch_x.float().to(self.device)
+                batch_x = batch_x.float().to(self.device)               # b,seq_len,4
 
-                batch_y = batch_y.float().to(self.device)
-                batch_x_mark = batch_x_mark.float().to(self.device)
-                batch_y_mark = batch_y_mark.float().to(self.device)
-                batch_cycle = batch_cycle.int().to(self.device)
+                batch_y = batch_y.float().to(self.device)               # b,seq_len + label_len,c
+                batch_x_mark = batch_x_mark.float().to(self.device)     # b,seq_len,4
+                batch_y_mark = batch_y_mark.float().to(self.device)     # b,seq_len + label_len,4
+                batch_cycle = batch_cycle.int().to(self.device)         # b
 
                 # decoder input
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
@@ -163,7 +189,9 @@ class Exp_Main(Exp_Basic):
                 # encoder - decoder
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
-                        if any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
+                        if "ZWF" in self.args.model:
+                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark,batch_y, batch_cycle)
+                        elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
                             outputs = self.model(batch_x, batch_cycle)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST'}):
@@ -180,7 +208,9 @@ class Exp_Main(Exp_Basic):
                         loss = criterion(outputs, batch_y)
                         train_loss.append(loss.item())
                 else:
-                    if any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
+                    if "ZWF" in self.args.model:
+                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                    elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
                         outputs = self.model(batch_x, batch_cycle)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST'}):
                         outputs = self.model(batch_x)
@@ -190,6 +220,7 @@ class Exp_Main(Exp_Basic):
 
                         else:
                             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark, batch_y)
+
                     # print(outputs.shape,batch_y.shape)
                     f_dim = -1 if self.args.features == 'MS' else 0
                     outputs = outputs[:, -self.args.pred_len:, f_dim:]
@@ -198,19 +229,33 @@ class Exp_Main(Exp_Basic):
                     train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
-                    print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
+                    # print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
+                    self.logger.info("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
                     speed = (time.time() - time_now) / iter_count
                     left_time = speed * ((self.args.train_epochs - epoch) * train_steps - i)
-                    print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time))
+                    # print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time))
+                    self.logger.info('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time))
                     iter_count = 0
                     time_now = time.time()
 
                 if self.args.use_amp:
                     scaler.scale(loss).backward()
+
+                    scaler.unscale_(model_optim)  # AMP 模式下必须先 unscale
+                    total_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.args.max_norm)  # 梯度裁剪
+                    # if total_norm > self.args.max_norm:
+                    #     print(f"梯度裁剪 Total norm before clipping: {total_norm:.4f}")
+                    scaler.scale(loss)
+
                     scaler.step(model_optim)
                     scaler.update()
                 else:
                     loss.backward()
+
+                    total_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(),  self.args.max_norm)
+                    # if total_norm >  self.args.max_norm:
+                    #     print(f"梯度裁剪 Total norm before clipping: {total_norm:.4f}")
+
                     model_optim.step()
 
                 # current_memory = torch.cuda.max_memory_allocated() / 1024 ** 2
@@ -220,22 +265,30 @@ class Exp_Main(Exp_Basic):
                     adjust_learning_rate(model_optim, scheduler, epoch + 1, self.args, printout=False)
                     scheduler.step()
 
-            print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
+            # print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
+            self.logger.info("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
+            # print("调用self.vali")
             vali_loss = self.vali(vali_data, vali_loader, criterion)
+            if np.isnan(vali_loss).any():
+                print("Warning: Validation loss is NaN!")
             test_loss = self.vali(test_data, test_loader, criterion)
 
-            print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
+            # print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
+            #     epoch + 1, train_steps, train_loss, vali_loss, test_loss))
+            self.logger.info("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
                 epoch + 1, train_steps, train_loss, vali_loss, test_loss))
             early_stopping(vali_loss, self.model, path)
             if early_stopping.early_stop:
-                print("Early stopping")
+                # print("Early stopping")
+                self.logger.info("Early stopping")
                 break
 
             if self.args.lradj != 'TST':
                 adjust_learning_rate(model_optim, scheduler, epoch + 1, self.args)
             else:
-                print('Updating learning rate to {}'.format(scheduler.get_last_lr()[0]))
+                # print('Updating learning rate to {}'.format(scheduler.get_last_lr()[0]))
+                self.logger.info('Updating learning rate to {}'.format(scheduler.get_last_lr()[0]))
 
         best_model_path = path + '/' + 'checkpoint.pth'
         self.model.load_state_dict(torch.load(best_model_path))
@@ -248,7 +301,8 @@ class Exp_Main(Exp_Basic):
         test_data, test_loader = self._get_data(flag='test')
 
         if test:
-            print('loading model')
+            # print('loading model')
+            self.logger.info('loading model')
             self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
 
         preds = []
@@ -274,7 +328,9 @@ class Exp_Main(Exp_Basic):
                 # encoder - decoder
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
-                        if any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
+                        if "ZWF" in self.args.model:
+                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                        elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
                             outputs = self.model(batch_x, batch_cycle)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST'}):
@@ -285,7 +341,9 @@ class Exp_Main(Exp_Basic):
                             else:
                                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
-                    if any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
+                    if "ZWF" in self.args.model:
+                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                    elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
                         outputs = self.model(batch_x, batch_cycle)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST'}):
                         outputs = self.model(batch_x)
@@ -344,7 +402,8 @@ class Exp_Main(Exp_Basic):
         mae, mse, rmse, mape, mspe, rse, corr = metric(preds, trues)
         # mae, mse, rmse, mape, mspe, rse, corr = metric(denorm_preds, denorm_trues)
 
-        print('mse:{}, mae:{}'.format(mse, mae))
+        # print('mse:{}, mae:{}'.format(mse, mae))
+        self.logger.info('mse:{}, mae:{}'.format(mse, mae))
         f = open("result.txt", 'a')
         f.write(setting + "  \n")
         f.write('mse:{}, mae:{}'.format(mse, mae))
@@ -384,7 +443,9 @@ class Exp_Main(Exp_Basic):
                 # encoder - decoder
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
-                        if any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
+                        if "ZWF" in self.args.model:
+                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                        elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
                             outputs = self.model(batch_x, batch_cycle)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST'}):
@@ -395,7 +456,9 @@ class Exp_Main(Exp_Basic):
                             else:
                                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
-                    if any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
+                    if "ZWF" in self.args.model:
+                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                    elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
                         outputs = self.model(batch_x, batch_cycle)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST'}):
                         outputs = self.model(batch_x)

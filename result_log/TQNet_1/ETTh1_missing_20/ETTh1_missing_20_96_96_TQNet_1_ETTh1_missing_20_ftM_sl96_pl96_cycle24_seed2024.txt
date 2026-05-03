@@ -1,0 +1,194 @@
+2026-04-30 22:22:07,921 - INFO - 模型总的参数数量: 1.1235M
+2026-04-30 22:22:07,980 - INFO - >>>>>>>start training : ETTh1_missing_20_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2024>>>>>>>>>>>>>>>>>>>>>>>>>>
+2026-04-30 22:22:54,902 - INFO - 模型总的参数数量: 1.1235M
+2026-04-30 22:22:54,961 - INFO - >>>>>>>start training : ETTh1_missing_20_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2024>>>>>>>>>>>>>>>>>>>>>>>>>>
+2026-04-30 22:24:31,428 - INFO - 模型总的参数数量: 1.1235M
+2026-04-30 22:24:31,505 - INFO - >>>>>>>start training : ETTh1_missing_20_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2024>>>>>>>>>>>>>>>>>>>>>>>>>>
+2026-04-30 22:25:42,890 - INFO - 模型总的参数数量: 1.1235M
+2026-04-30 22:25:42,942 - INFO - >>>>>>>start training : ETTh1_missing_20_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2024>>>>>>>>>>>>>>>>>>>>>>>>>>
+2026-04-30 22:28:17,427 - INFO - 模型总的参数数量: 1.1235M
+2026-04-30 22:28:17,487 - INFO - >>>>>>>start training : ETTh1_missing_20_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2024>>>>>>>>>>>>>>>>>>>>>>>>>>
+2026-04-30 22:28:41,200 - INFO - Epoch: 1 cost time: 22.89672327041626
+2026-04-30 22:29:53,675 - INFO - 模型总的参数数量: 1.1235M
+2026-04-30 22:29:53,718 - INFO - >>>>>>>start training : ETTh1_missing_20_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2024>>>>>>>>>>>>>>>>>>>>>>>>>>
+2026-04-30 22:30:17,301 - INFO - Epoch: 1 cost time: 22.74610471725464
+2026-04-30 22:31:00,436 - INFO - Epoch: 1, Steps: 46 | Train Loss: 0.6886057 Vali Loss: 0.5213909 Test Loss: 0.7365905
+2026-04-30 22:31:00,436 - INFO - Validation loss decreased (inf --> 0.521391).  Saving model ...
+2026-04-30 22:31:00,443 - INFO - Updating learning rate to 0.001
+2026-04-30 22:31:22,889 - INFO - Epoch: 2 cost time: 22.445992708206177
+2026-04-30 22:32:05,958 - INFO - Epoch: 2, Steps: 46 | Train Loss: 0.4873143 Vali Loss: 0.3706737 Test Loss: 0.4777701
+2026-04-30 22:32:05,958 - INFO - Validation loss decreased (0.521391 --> 0.370674).  Saving model ...
+2026-04-30 22:32:05,964 - INFO - Updating learning rate to 0.001
+2026-04-30 22:32:28,341 - INFO - Epoch: 3 cost time: 22.3767352104187
+2026-04-30 22:33:11,299 - INFO - Epoch: 3, Steps: 46 | Train Loss: 0.4217377 Vali Loss: 0.3633941 Test Loss: 0.4598946
+2026-04-30 22:33:11,299 - INFO - Validation loss decreased (0.370674 --> 0.363394).  Saving model ...
+2026-04-30 22:33:11,305 - INFO - Updating learning rate to 0.001
+2026-04-30 22:33:33,604 - INFO - Epoch: 4 cost time: 22.29923152923584
+2026-04-30 22:34:16,898 - INFO - Epoch: 4, Steps: 46 | Train Loss: 0.4032988 Vali Loss: 0.3588376 Test Loss: 0.4590117
+2026-04-30 22:34:16,898 - INFO - Validation loss decreased (0.363394 --> 0.358838).  Saving model ...
+2026-04-30 22:34:16,904 - INFO - Updating learning rate to 0.0008
+2026-04-30 22:34:39,350 - INFO - Epoch: 5 cost time: 22.446022748947144
+2026-04-30 22:35:22,479 - INFO - Epoch: 5, Steps: 46 | Train Loss: 0.3935213 Vali Loss: 0.3550934 Test Loss: 0.4588612
+2026-04-30 22:35:22,479 - INFO - Validation loss decreased (0.358838 --> 0.355093).  Saving model ...
+2026-04-30 22:35:22,484 - INFO - Updating learning rate to 0.0006400000000000002
+2026-04-30 22:35:44,915 - INFO - Epoch: 6 cost time: 22.430947303771973
+2026-04-30 22:36:27,986 - INFO - Epoch: 6, Steps: 46 | Train Loss: 0.3858776 Vali Loss: 0.3509967 Test Loss: 0.4541643
+2026-04-30 22:36:27,987 - INFO - Validation loss decreased (0.355093 --> 0.350997).  Saving model ...
+2026-04-30 22:36:27,994 - INFO - Updating learning rate to 0.0005120000000000001
+2026-04-30 22:36:50,351 - INFO - Epoch: 7 cost time: 22.357389450073242
+2026-04-30 22:37:33,304 - INFO - Epoch: 7, Steps: 46 | Train Loss: 0.3821602 Vali Loss: 0.3514512 Test Loss: 0.4494147
+2026-04-30 22:37:33,304 - INFO - EarlyStopping counter: 1 out of 5
+2026-04-30 22:37:33,304 - INFO - Updating learning rate to 0.0004096000000000001
+2026-04-30 22:37:55,717 - INFO - Epoch: 8 cost time: 22.411444425582886
+2026-04-30 22:38:38,630 - INFO - Epoch: 8, Steps: 46 | Train Loss: 0.3783013 Vali Loss: 0.3485584 Test Loss: 0.4487247
+2026-04-30 22:38:38,630 - INFO - Validation loss decreased (0.350997 --> 0.348558).  Saving model ...
+2026-04-30 22:38:38,636 - INFO - Updating learning rate to 0.0003276800000000001
+2026-04-30 22:39:00,933 - INFO - Epoch: 9 cost time: 22.29701328277588
+2026-04-30 22:39:44,121 - INFO - Epoch: 9, Steps: 46 | Train Loss: 0.3749649 Vali Loss: 0.3476005 Test Loss: 0.4501140
+2026-04-30 22:39:44,121 - INFO - Validation loss decreased (0.348558 --> 0.347600).  Saving model ...
+2026-04-30 22:39:44,128 - INFO - Updating learning rate to 0.0002621440000000001
+2026-04-30 22:40:06,659 - INFO - Epoch: 10 cost time: 22.530174016952515
+2026-04-30 22:40:49,950 - INFO - Epoch: 10, Steps: 46 | Train Loss: 0.3719706 Vali Loss: 0.3491101 Test Loss: 0.4468868
+2026-04-30 22:40:49,950 - INFO - EarlyStopping counter: 1 out of 5
+2026-04-30 22:40:49,950 - INFO - Updating learning rate to 0.0002097152000000001
+2026-04-30 22:41:12,466 - INFO - Epoch: 11 cost time: 22.514970302581787
+2026-04-30 22:41:55,885 - INFO - Epoch: 11, Steps: 46 | Train Loss: 0.3704139 Vali Loss: 0.3515348 Test Loss: 0.4463741
+2026-04-30 22:41:55,885 - INFO - EarlyStopping counter: 2 out of 5
+2026-04-30 22:41:55,885 - INFO - Updating learning rate to 0.0001677721600000001
+2026-04-30 22:42:18,243 - INFO - Epoch: 12 cost time: 22.357972145080566
+2026-04-30 22:43:01,045 - INFO - Epoch: 12, Steps: 46 | Train Loss: 0.3693865 Vali Loss: 0.3503870 Test Loss: 0.4449547
+2026-04-30 22:43:01,046 - INFO - EarlyStopping counter: 3 out of 5
+2026-04-30 22:43:01,046 - INFO - Updating learning rate to 0.00013421772800000008
+2026-04-30 22:43:23,359 - INFO - Epoch: 13 cost time: 22.312968730926514
+2026-04-30 22:44:06,511 - INFO - Epoch: 13, Steps: 46 | Train Loss: 0.3687451 Vali Loss: 0.3472352 Test Loss: 0.4452817
+2026-04-30 22:44:06,512 - INFO - Validation loss decreased (0.347600 --> 0.347235).  Saving model ...
+2026-04-30 22:44:06,517 - INFO - Updating learning rate to 0.00010737418240000006
+2026-04-30 22:44:28,991 - INFO - Epoch: 14 cost time: 22.47437882423401
+2026-04-30 22:45:12,058 - INFO - Epoch: 14, Steps: 46 | Train Loss: 0.3671039 Vali Loss: 0.3465144 Test Loss: 0.4448129
+2026-04-30 22:45:12,058 - INFO - Validation loss decreased (0.347235 --> 0.346514).  Saving model ...
+2026-04-30 22:45:12,065 - INFO - Updating learning rate to 8.589934592000005e-05
+2026-04-30 22:45:34,535 - INFO - Epoch: 15 cost time: 22.469632625579834
+2026-04-30 22:46:17,852 - INFO - Epoch: 15, Steps: 46 | Train Loss: 0.3655868 Vali Loss: 0.3456648 Test Loss: 0.4441511
+2026-04-30 22:46:17,853 - INFO - Validation loss decreased (0.346514 --> 0.345665).  Saving model ...
+2026-04-30 22:46:17,858 - INFO - Updating learning rate to 6.871947673600005e-05
+2026-04-30 22:46:40,301 - INFO - Epoch: 16 cost time: 22.443106412887573
+2026-04-30 22:47:23,344 - INFO - Epoch: 16, Steps: 46 | Train Loss: 0.3651960 Vali Loss: 0.3483622 Test Loss: 0.4434876
+2026-04-30 22:47:23,345 - INFO - EarlyStopping counter: 1 out of 5
+2026-04-30 22:47:23,345 - INFO - Updating learning rate to 5.497558138880004e-05
+2026-04-30 22:47:45,715 - INFO - Epoch: 17 cost time: 22.370651960372925
+2026-04-30 22:48:28,815 - INFO - Epoch: 17, Steps: 46 | Train Loss: 0.3657323 Vali Loss: 0.3467094 Test Loss: 0.4439747
+2026-04-30 22:48:28,815 - INFO - EarlyStopping counter: 2 out of 5
+2026-04-30 22:48:28,815 - INFO - Updating learning rate to 4.398046511104004e-05
+2026-04-30 22:48:51,078 - INFO - Epoch: 18 cost time: 22.262898206710815
+2026-04-30 22:49:34,143 - INFO - Epoch: 18, Steps: 46 | Train Loss: 0.3651613 Vali Loss: 0.3463000 Test Loss: 0.4438555
+2026-04-30 22:49:34,143 - INFO - EarlyStopping counter: 3 out of 5
+2026-04-30 22:49:34,143 - INFO - Updating learning rate to 3.518437208883203e-05
+2026-04-30 22:49:56,506 - INFO - Epoch: 19 cost time: 22.363534212112427
+2026-04-30 22:50:39,607 - INFO - Epoch: 19, Steps: 46 | Train Loss: 0.3643400 Vali Loss: 0.3447461 Test Loss: 0.4435036
+2026-04-30 22:50:39,607 - INFO - Validation loss decreased (0.345665 --> 0.344746).  Saving model ...
+2026-04-30 22:50:39,612 - INFO - Updating learning rate to 2.8147497671065623e-05
+2026-04-30 22:51:02,056 - INFO - Epoch: 20 cost time: 22.443795919418335
+2026-04-30 22:51:45,382 - INFO - Epoch: 20, Steps: 46 | Train Loss: 0.3636923 Vali Loss: 0.3446753 Test Loss: 0.4432569
+2026-04-30 22:51:45,382 - INFO - Validation loss decreased (0.344746 --> 0.344675).  Saving model ...
+2026-04-30 22:51:45,387 - INFO - Updating learning rate to 2.2517998136852502e-05
+2026-04-30 22:52:07,847 - INFO - Epoch: 21 cost time: 22.460036516189575
+2026-04-30 22:52:51,291 - INFO - Epoch: 21, Steps: 46 | Train Loss: 0.3634249 Vali Loss: 0.3464917 Test Loss: 0.4434901
+2026-04-30 22:52:51,291 - INFO - EarlyStopping counter: 1 out of 5
+2026-04-30 22:52:51,292 - INFO - Updating learning rate to 1.8014398509482003e-05
+2026-04-30 22:53:13,791 - INFO - Epoch: 22 cost time: 22.49857783317566
+2026-04-30 22:53:57,040 - INFO - Epoch: 22, Steps: 46 | Train Loss: 0.3633719 Vali Loss: 0.3453799 Test Loss: 0.4429990
+2026-04-30 22:53:57,040 - INFO - EarlyStopping counter: 2 out of 5
+2026-04-30 22:53:57,041 - INFO - Updating learning rate to 1.4411518807585603e-05
+2026-04-30 22:54:19,567 - INFO - Epoch: 23 cost time: 22.526012420654297
+2026-04-30 22:55:02,643 - INFO - Epoch: 23, Steps: 46 | Train Loss: 0.3623696 Vali Loss: 0.3458337 Test Loss: 0.4430019
+2026-04-30 22:55:02,643 - INFO - EarlyStopping counter: 3 out of 5
+2026-04-30 22:55:02,643 - INFO - Updating learning rate to 1.1529215046068483e-05
+2026-04-30 22:55:24,979 - INFO - Epoch: 24 cost time: 22.335533380508423
+2026-04-30 22:56:07,883 - INFO - Epoch: 24, Steps: 46 | Train Loss: 0.3639679 Vali Loss: 0.3464269 Test Loss: 0.4432784
+2026-04-30 22:56:07,883 - INFO - EarlyStopping counter: 4 out of 5
+2026-04-30 22:56:07,883 - INFO - Updating learning rate to 9.223372036854787e-06
+2026-04-30 22:56:30,351 - INFO - Epoch: 25 cost time: 22.467272758483887
+2026-04-30 22:57:13,479 - INFO - Epoch: 25, Steps: 46 | Train Loss: 0.3633306 Vali Loss: 0.3453391 Test Loss: 0.4430813
+2026-04-30 22:57:13,479 - INFO - EarlyStopping counter: 5 out of 5
+2026-04-30 22:57:13,480 - INFO - Early stopping
+2026-04-30 22:57:13,505 - INFO - >>>>>>>testing : ETTh1_missing_20_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2024<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+2026-04-30 22:57:35,521 - INFO - mse:0.4525710940361023, mae:0.46754077076911926
+2026-04-30 23:33:23,740 - INFO - 模型总的参数数量: 1.1235M
+2026-04-30 23:33:23,800 - INFO - >>>>>>>start training : ETTh1_missing_20_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2024>>>>>>>>>>>>>>>>>>>>>>>>>>
+2026-04-30 23:35:15,835 - INFO - 模型总的参数数量: 1.1235M
+2026-04-30 23:35:15,882 - INFO - >>>>>>>start training : ETTh1_missing_20_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2024>>>>>>>>>>>>>>>>>>>>>>>>>>
+2026-04-30 23:35:40,070 - INFO - Epoch: 1 cost time: 23.344048738479614
+2026-04-30 23:36:24,566 - INFO - Epoch: 1, Steps: 46 | Train Loss: 0.9583308 Vali Loss: 0.5931318 Test Loss: 0.8270767
+2026-04-30 23:36:24,566 - INFO - Validation loss decreased (inf --> 0.593132).  Saving model ...
+2026-04-30 23:36:24,573 - INFO - Updating learning rate to 0.001
+2026-04-30 23:36:47,505 - INFO - Epoch: 2 cost time: 22.932311058044434
+2026-04-30 23:37:31,923 - INFO - Epoch: 2, Steps: 46 | Train Loss: 0.6134829 Vali Loss: 0.3783683 Test Loss: 0.4905177
+2026-04-30 23:37:31,923 - INFO - Validation loss decreased (0.593132 --> 0.378368).  Saving model ...
+2026-04-30 23:37:31,929 - INFO - Updating learning rate to 0.001
+2026-04-30 23:37:54,882 - INFO - Epoch: 3 cost time: 22.95282506942749
+2026-04-30 23:38:39,514 - INFO - Epoch: 3, Steps: 46 | Train Loss: 0.4434140 Vali Loss: 0.3527122 Test Loss: 0.4594595
+2026-04-30 23:38:39,514 - INFO - Validation loss decreased (0.378368 --> 0.352712).  Saving model ...
+2026-04-30 23:38:39,520 - INFO - Updating learning rate to 0.001
+2026-04-30 23:39:02,642 - INFO - Epoch: 4 cost time: 23.12201738357544
+2026-04-30 23:39:47,504 - INFO - Epoch: 4, Steps: 46 | Train Loss: 0.4065582 Vali Loss: 0.3518234 Test Loss: 0.4553462
+2026-04-30 23:39:47,504 - INFO - Validation loss decreased (0.352712 --> 0.351823).  Saving model ...
+2026-04-30 23:39:47,509 - INFO - Updating learning rate to 0.0008
+2026-04-30 23:40:10,818 - INFO - Epoch: 5 cost time: 23.309569120407104
+2026-04-30 23:40:55,858 - INFO - Epoch: 5, Steps: 46 | Train Loss: 0.3949157 Vali Loss: 0.3476225 Test Loss: 0.4535742
+2026-04-30 23:40:55,858 - INFO - Validation loss decreased (0.351823 --> 0.347623).  Saving model ...
+2026-04-30 23:40:55,864 - INFO - Updating learning rate to 0.0006400000000000002
+2026-04-30 23:41:18,998 - INFO - Epoch: 6 cost time: 23.133429288864136
+2026-04-30 23:42:03,449 - INFO - Epoch: 6, Steps: 46 | Train Loss: 0.3864916 Vali Loss: 0.3471132 Test Loss: 0.4486891
+2026-04-30 23:42:03,449 - INFO - Validation loss decreased (0.347623 --> 0.347113).  Saving model ...
+2026-04-30 23:42:03,454 - INFO - Updating learning rate to 0.0005120000000000001
+2026-04-30 23:42:26,374 - INFO - Epoch: 7 cost time: 22.919116497039795
+2026-04-30 23:43:10,827 - INFO - Epoch: 7, Steps: 46 | Train Loss: 0.3812476 Vali Loss: 0.3442909 Test Loss: 0.4441001
+2026-04-30 23:43:10,827 - INFO - Validation loss decreased (0.347113 --> 0.344291).  Saving model ...
+2026-04-30 23:43:10,832 - INFO - Updating learning rate to 0.0004096000000000001
+2026-04-30 23:43:33,745 - INFO - Epoch: 8 cost time: 22.912880659103394
+2026-04-30 23:44:18,016 - INFO - Epoch: 8, Steps: 46 | Train Loss: 0.3767732 Vali Loss: 0.3437778 Test Loss: 0.4443746
+2026-04-30 23:44:18,016 - INFO - Validation loss decreased (0.344291 --> 0.343778).  Saving model ...
+2026-04-30 23:44:18,022 - INFO - Updating learning rate to 0.0003276800000000001
+2026-04-30 23:44:40,968 - INFO - Epoch: 9 cost time: 22.94622802734375
+2026-04-30 23:45:25,597 - INFO - Epoch: 9, Steps: 46 | Train Loss: 0.3728198 Vali Loss: 0.3411382 Test Loss: 0.4440463
+2026-04-30 23:45:25,598 - INFO - Validation loss decreased (0.343778 --> 0.341138).  Saving model ...
+2026-04-30 23:45:25,603 - INFO - Updating learning rate to 0.0002621440000000001
+2026-04-30 23:45:48,926 - INFO - Epoch: 10 cost time: 23.32236671447754
+2026-04-30 23:46:33,943 - INFO - Epoch: 10, Steps: 46 | Train Loss: 0.3699045 Vali Loss: 0.3434378 Test Loss: 0.4421938
+2026-04-30 23:46:33,943 - INFO - EarlyStopping counter: 1 out of 5
+2026-04-30 23:46:33,943 - INFO - Updating learning rate to 0.0002097152000000001
+2026-04-30 23:46:56,916 - INFO - Epoch: 11 cost time: 22.973367929458618
+2026-04-30 23:47:41,554 - INFO - Epoch: 11, Steps: 46 | Train Loss: 0.3671629 Vali Loss: 0.3464810 Test Loss: 0.4410697
+2026-04-30 23:47:41,554 - INFO - EarlyStopping counter: 2 out of 5
+2026-04-30 23:47:41,554 - INFO - Updating learning rate to 0.0001677721600000001
+2026-04-30 23:48:04,450 - INFO - Epoch: 12 cost time: 22.895983695983887
+2026-04-30 23:48:48,911 - INFO - Epoch: 12, Steps: 46 | Train Loss: 0.3655562 Vali Loss: 0.3444231 Test Loss: 0.4405242
+2026-04-30 23:48:48,911 - INFO - EarlyStopping counter: 3 out of 5
+2026-04-30 23:48:48,912 - INFO - Updating learning rate to 0.00013421772800000008
+2026-04-30 23:49:11,865 - INFO - Epoch: 13 cost time: 22.953758478164673
+2026-04-30 23:49:56,300 - INFO - Epoch: 13, Steps: 46 | Train Loss: 0.3648177 Vali Loss: 0.3411150 Test Loss: 0.4404260
+2026-04-30 23:49:56,300 - INFO - Validation loss decreased (0.341138 --> 0.341115).  Saving model ...
+2026-04-30 23:49:56,306 - INFO - Updating learning rate to 0.00010737418240000006
+2026-04-30 23:50:19,419 - INFO - Epoch: 14 cost time: 23.113213777542114
+2026-04-30 23:51:04,270 - INFO - Epoch: 14, Steps: 46 | Train Loss: 0.3633965 Vali Loss: 0.3418920 Test Loss: 0.4398598
+2026-04-30 23:51:04,270 - INFO - EarlyStopping counter: 1 out of 5
+2026-04-30 23:51:04,270 - INFO - Updating learning rate to 8.589934592000005e-05
+2026-04-30 23:51:27,410 - INFO - Epoch: 15 cost time: 23.13966703414917
+2026-04-30 23:52:12,231 - INFO - Epoch: 15, Steps: 46 | Train Loss: 0.3620454 Vali Loss: 0.3414837 Test Loss: 0.4392441
+2026-04-30 23:52:12,231 - INFO - EarlyStopping counter: 2 out of 5
+2026-04-30 23:52:12,231 - INFO - Updating learning rate to 6.871947673600005e-05
+2026-04-30 23:52:35,379 - INFO - Epoch: 16 cost time: 23.147374629974365
+2026-04-30 23:53:20,015 - INFO - Epoch: 16, Steps: 46 | Train Loss: 0.3613483 Vali Loss: 0.3430101 Test Loss: 0.4388936
+2026-04-30 23:53:20,015 - INFO - EarlyStopping counter: 3 out of 5
+2026-04-30 23:53:20,015 - INFO - Updating learning rate to 5.497558138880004e-05
+2026-04-30 23:53:43,146 - INFO - Epoch: 17 cost time: 23.13077211380005
+2026-04-30 23:54:27,808 - INFO - Epoch: 17, Steps: 46 | Train Loss: 0.3615002 Vali Loss: 0.3414976 Test Loss: 0.4398429
+2026-04-30 23:54:27,808 - INFO - EarlyStopping counter: 4 out of 5
+2026-04-30 23:54:27,808 - INFO - Updating learning rate to 4.398046511104004e-05
+2026-04-30 23:54:50,738 - INFO - Epoch: 18 cost time: 22.929797410964966
+2026-04-30 23:55:34,791 - INFO - Epoch: 18, Steps: 46 | Train Loss: 0.3605550 Vali Loss: 0.3414072 Test Loss: 0.4390741
+2026-04-30 23:55:34,791 - INFO - EarlyStopping counter: 5 out of 5
+2026-04-30 23:55:34,791 - INFO - Early stopping
+2026-04-30 23:55:34,818 - INFO - >>>>>>>testing : ETTh1_missing_20_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2024<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+用原始的ResidualDecomposition且使用了Y_seasonal
+2026-04-30 23:55:57,414 - INFO - mse:0.4499334692955017, mae:0.465119332075119

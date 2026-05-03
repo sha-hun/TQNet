@@ -142,3 +142,51 @@ mse:0.1491628885269165, mae:0.2436249852180481
 PEMS08_96_96_TQNet_PEMS_ftM_sl96_pl96_cycle288_seed2024  
 mse:0.25336316227912903, mae:0.30868956446647644
 
+ETTh1_missing_20_96_96_ZWF_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2026  
+mse:nan, mae:nan
+
+ETTh1_missing_20_96_96_ZWF_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2026  
+mse:0.6255476474761963, mae:0.5854368209838867
+
+ETTh1_missing_20_96_96_TQNet_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2024  
+mse:0.45151519775390625, mae:0.4661939740180969
+
+ETTh1_missing_30_96_96_TQNet_ETTh1_missing_30_ftM_sl96_pl96_cycle24_seed2024  
+mse:0.5373437404632568, mae:0.5120145678520203
+
+ETTh1_missing_30_96_96_ZWF_ETTh1_missing_30_ftM_sl96_pl96_cycle24_seed2026  
+mse:0.7039960622787476, mae:0.6022022366523743
+
+ETTh1_missing_20_96_96_ZWF_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2026  
+mse:0.6356225609779358, mae:0.5657501816749573
+
+ETTh1_missing_20_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2024  
+mse:0.4525710940361023, mae:0.46754077076911926
+
+ETTh1_missing_20_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2024  
+mse:0.4499334692955017, mae:0.465119332075119
+
+with_residual_decomposition_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle0_seed2024  
+mse:0.45326733589172363, mae:0.46699416637420654
+
+with_residual_decomposition_v2_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle0_seed2024  
+mse:0.4526524841785431, mae:0.46629321575164795
+
+with_residual_decomposition_v2_96_96_TQNet_2_ETTh1_missing_20_ftM_sl96_pl96_cycle0_seed2024  
+mse:0.4467003643512726, mae:0.46594852209091187
+
+注意力只用周期且加tanh_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle0_seed2024  
+mse:0.4461817741394043, mae:0.4665786027908325
+
+取消Y_seasonal_96_96_TQNet_2_ETTh1_missing_20_ftM_sl96_pl96_cycle0_seed2024  
+mse:0.4437696039676666, mae:0.4656549096107483
+
+注意力只用周期且加tanh_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle0_seed2024  
+mse:0.4461817741394043, mae:0.4665786027908325
+
+注意力只用Y，且Y没有加入output_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle0_seed2024  
+mse:0.447140634059906, mae:0.46944618225097656
+
+注意力只用Y,且去掉Y之后的线性层_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle0_seed2024  
+mse:0.44772177934646606, mae:0.46965688467025757
+

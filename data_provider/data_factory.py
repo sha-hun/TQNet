@@ -1,4 +1,4 @@
-from data_provider.data_loader import Dataset_ETT_hour, Dataset_ETT_minute, Dataset_Custom, Dataset_Pred, Dataset_Solar, Dataset_PEMS
+from data_provider.data_loader import Dataset_ETT_hour, Dataset_ETT_minute, Dataset_Custom, Dataset_Pred, Dataset_Solar, Dataset_PEMS, Dataset_Miss
 from torch.utils.data import DataLoader
 
 data_dict = {
@@ -8,12 +8,20 @@ data_dict = {
     'ETTm2': Dataset_ETT_minute,
     'custom': Dataset_Custom,
     'Solar': Dataset_Solar,
-    'PEMS': Dataset_PEMS
+    'PEMS': Dataset_PEMS,
+    'Miss': Dataset_Miss
 }
 
 
-def data_provider(args, flag):
-    Data = data_dict[args.data]
+def data_provider(args, flag, use_miss=False):
+    if args.data not in data_dict:
+        if '_missing_' in args.data:
+            Data = Dataset_Miss
+            print('使用 Dataset_Miss 处理缺失数据集')
+        else:
+            raise ValueError(f"数据集 {args.data} 不在预定义的数据字典中，请检查数据集名称或添加到 data_dict 中。")
+    else:
+        Data = data_dict[args.data]
     timeenc = 0 if args.embed != 'timeF' else 1
 
     if flag == 'test':
@@ -33,6 +41,8 @@ def data_provider(args, flag):
         batch_size = args.batch_size
         freq = args.freq
 
+    # print(f"Preparing {flag}  features是{args.features}，freq是{freq}，cycle是{args.cycle} target是{args.target}")
+
     data_set = Data(
         root_path=args.root_path,
         data_path=args.data_path,
@@ -42,9 +52,10 @@ def data_provider(args, flag):
         target=args.target,
         timeenc=timeenc,
         freq=freq,
-        cycle=args.cycle
+        cycle=args.cycle,
+        use_miss=args.use_miss
     )
-    print(flag, len(data_set))
+    print("use_miss=",args.use_miss," flag:", flag," len:", len(data_set))
     data_loader = DataLoader(
         data_set,
         batch_size=batch_size,

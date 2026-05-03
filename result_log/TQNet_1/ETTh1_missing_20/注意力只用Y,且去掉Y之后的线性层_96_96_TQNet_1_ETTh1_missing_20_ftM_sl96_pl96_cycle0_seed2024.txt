@@ -1,0 +1,60 @@
+2026-05-02 01:17:11,185 - INFO - 模型总的参数数量: 1.1235M
+2026-05-02 01:17:11,245 - INFO - >>>>>>>start training : 注意力只用Y,且去掉Y之后的线性层_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle0_seed2024>>>>>>>>>>>>>>>>>>>>>>>>>>
+2026-05-02 01:17:35,286 - INFO - Epoch: 1 cost time: 23.20000457763672
+2026-05-02 01:18:19,029 - INFO - Epoch: 1, Steps: 46 | Train Loss: 0.8168756 Vali Loss: 0.5447461 Test Loss: 0.8008224
+2026-05-02 01:18:19,030 - INFO - Validation loss decreased (inf --> 0.544746).  Saving model ...
+2026-05-02 01:18:19,050 - INFO - Updating learning rate to 0.001
+2026-05-02 01:18:41,694 - INFO - Epoch: 2 cost time: 22.643985271453857
+2026-05-02 01:19:25,603 - INFO - Epoch: 2, Steps: 46 | Train Loss: 0.5089957 Vali Loss: 0.3643488 Test Loss: 0.4790708
+2026-05-02 01:19:25,603 - INFO - Validation loss decreased (0.544746 --> 0.364349).  Saving model ...
+2026-05-02 01:19:25,609 - INFO - Updating learning rate to 0.001
+2026-05-02 01:19:48,362 - INFO - Epoch: 3 cost time: 22.752190351486206
+2026-05-02 01:20:32,796 - INFO - Epoch: 3, Steps: 46 | Train Loss: 0.4191770 Vali Loss: 0.3558808 Test Loss: 0.4613019
+2026-05-02 01:20:32,796 - INFO - Validation loss decreased (0.364349 --> 0.355881).  Saving model ...
+2026-05-02 01:20:32,801 - INFO - Updating learning rate to 0.001
+2026-05-02 01:20:55,667 - INFO - Epoch: 4 cost time: 22.864859342575073
+2026-05-02 01:21:39,975 - INFO - Epoch: 4, Steps: 46 | Train Loss: 0.3991511 Vali Loss: 0.3499942 Test Loss: 0.4566157
+2026-05-02 01:21:39,975 - INFO - Validation loss decreased (0.355881 --> 0.349994).  Saving model ...
+2026-05-02 01:21:39,980 - INFO - Updating learning rate to 0.0008
+2026-05-02 01:22:03,074 - INFO - Epoch: 5 cost time: 23.093168258666992
+2026-05-02 01:22:47,559 - INFO - Epoch: 5, Steps: 46 | Train Loss: 0.3896950 Vali Loss: 0.3471532 Test Loss: 0.4518850
+2026-05-02 01:22:47,559 - INFO - Validation loss decreased (0.349994 --> 0.347153).  Saving model ...
+2026-05-02 01:22:47,565 - INFO - Updating learning rate to 0.0006400000000000002
+2026-05-02 01:23:10,621 - INFO - Epoch: 6 cost time: 23.055771112442017
+2026-05-02 01:23:54,924 - INFO - Epoch: 6, Steps: 46 | Train Loss: 0.3821552 Vali Loss: 0.3454514 Test Loss: 0.4451829
+2026-05-02 01:23:54,924 - INFO - Validation loss decreased (0.347153 --> 0.345451).  Saving model ...
+2026-05-02 01:23:54,929 - INFO - Updating learning rate to 0.0005120000000000001
+2026-05-02 01:24:17,983 - INFO - Epoch: 7 cost time: 23.053794145584106
+2026-05-02 01:25:02,114 - INFO - Epoch: 7, Steps: 46 | Train Loss: 0.3780886 Vali Loss: 0.3445121 Test Loss: 0.4432466
+2026-05-02 01:25:02,114 - INFO - Validation loss decreased (0.345451 --> 0.344512).  Saving model ...
+2026-05-02 01:25:02,120 - INFO - Updating learning rate to 0.0004096000000000001
+2026-05-02 01:25:24,980 - INFO - Epoch: 8 cost time: 22.860095739364624
+2026-05-02 01:26:09,487 - INFO - Epoch: 8, Steps: 46 | Train Loss: 0.3745113 Vali Loss: 0.3409730 Test Loss: 0.4398639
+2026-05-02 01:26:09,487 - INFO - Validation loss decreased (0.344512 --> 0.340973).  Saving model ...
+2026-05-02 01:26:09,493 - INFO - Updating learning rate to 0.0003276800000000001
+2026-05-02 01:26:32,359 - INFO - Epoch: 9 cost time: 22.86561894416809
+2026-05-02 01:27:16,451 - INFO - Epoch: 9, Steps: 46 | Train Loss: 0.3711410 Vali Loss: 0.3406501 Test Loss: 0.4392920
+2026-05-02 01:27:16,451 - INFO - Validation loss decreased (0.340973 --> 0.340650).  Saving model ...
+2026-05-02 01:27:16,457 - INFO - Updating learning rate to 0.0002621440000000001
+2026-05-02 01:27:39,362 - INFO - Epoch: 10 cost time: 22.905653476715088
+2026-05-02 01:28:23,620 - INFO - Epoch: 10, Steps: 46 | Train Loss: 0.3683020 Vali Loss: 0.3410518 Test Loss: 0.4371320
+2026-05-02 01:28:23,620 - INFO - EarlyStopping counter: 1 out of 5
+2026-05-02 01:28:23,620 - INFO - Updating learning rate to 0.0002097152000000001
+2026-05-02 01:28:46,506 - INFO - Epoch: 11 cost time: 22.885546684265137
+2026-05-02 01:29:31,037 - INFO - Epoch: 11, Steps: 46 | Train Loss: 0.3665141 Vali Loss: 0.3447708 Test Loss: 0.4374665
+2026-05-02 01:29:31,038 - INFO - EarlyStopping counter: 2 out of 5
+2026-05-02 01:29:31,038 - INFO - Updating learning rate to 0.0001677721600000001
+2026-05-02 01:29:54,154 - INFO - Epoch: 12 cost time: 23.115487337112427
+2026-05-02 01:30:38,811 - INFO - Epoch: 12, Steps: 46 | Train Loss: 0.3653087 Vali Loss: 0.3424545 Test Loss: 0.4350843
+2026-05-02 01:30:38,811 - INFO - EarlyStopping counter: 3 out of 5
+2026-05-02 01:30:38,811 - INFO - Updating learning rate to 0.00013421772800000008
+2026-05-02 01:31:01,861 - INFO - Epoch: 13 cost time: 23.049411296844482
+2026-05-02 01:31:45,771 - INFO - Epoch: 13, Steps: 46 | Train Loss: 0.3645258 Vali Loss: 0.3410065 Test Loss: 0.4357553
+2026-05-02 01:31:45,771 - INFO - EarlyStopping counter: 4 out of 5
+2026-05-02 01:31:45,772 - INFO - Updating learning rate to 0.00010737418240000006
+2026-05-02 01:32:08,681 - INFO - Epoch: 14 cost time: 22.909128189086914
+2026-05-02 01:32:53,154 - INFO - Epoch: 14, Steps: 46 | Train Loss: 0.3632117 Vali Loss: 0.3414014 Test Loss: 0.4347888
+2026-05-02 01:32:53,154 - INFO - EarlyStopping counter: 5 out of 5
+2026-05-02 01:32:53,154 - INFO - Early stopping
+2026-05-02 01:32:53,170 - INFO - >>>>>>>testing : 注意力只用Y,且去掉Y之后的线性层_96_96_TQNet_1_ETTh1_missing_20_ftM_sl96_pl96_cycle0_seed2024<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+2026-05-02 01:33:15,835 - INFO - mse:0.44772177934646606, mae:0.46965688467025757

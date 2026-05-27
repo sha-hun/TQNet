@@ -88,6 +88,3 @@
 2026-04-30 21:05:51,669 - INFO - Early stopping
 2026-04-30 21:05:51,682 - INFO - >>>>>>>testing : ETTh1_missing_20_96_96_TQNet_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2024<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 2026-04-30 21:06:16,768 - INFO - mse:0.45151519775390625, mae:0.4661939740180969
-2026-04-30 21:57:33,297 - INFO - 模型总的参数数量: 0.6616M
-2026-04-30 21:57:33,360 - INFO - >>>>>>>start training : ETTh1_missing_20_96_96_TQNet_ETTh1_missing_20_ftM_sl96_pl96_cycle24_seed2024>>>>>>>>>>>>>>>>>>>>>>>>>>
-2026-04-30 21:57:57,773 - INFO - Epoch: 1 cost time: 23.56825828552246

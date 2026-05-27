@@ -174,7 +174,6 @@ class Model(nn.Module):
         # query_input = self.temporalQuery[gather_index].permute(0, 2, 1)  # (b, c, s)
         query_input ,Y_seasonal = self.residual_decomposition(x_input.permute(0, 2, 1), cycle_index=cycle_index)  # 传入b,s,c返回b,s,c
         query_input = query_input.permute(0, 2, 1)  # (b, s, c) -> (b, c, s)
-        Y_seasonal = Y_seasonal.permute(0, 2, 1)  # (b, c, pred_len) -> (b, pred_len, c)
 
         channel_information = self.channelAggregator( query=query_input, key=query_input, value=query_input )[0]
 
@@ -186,18 +185,7 @@ class Model(nn.Module):
         if self.use_revin:
             output_main = output_main * torch.sqrt(seq_var) + seq_mean
         
-        loss_main = MSE(output_main, y_true - self.seasonal_weight * Y_seasonal.detach())
-        loss_total = MSE(output, y_true)
-
-        loss = loss_main + loss_total
+        output = output_main + self.seasonal_weight * Y_seasonal
         
-        return loss
-    
-"""
-loss_main = MSE(output_main, y_true - self.seasonal_weight * Y_seasonal.detach())
-loss_total = MSE(output, y_true)
 
-loss = loss_main + loss_total
-"""
-
-
+        return output, None

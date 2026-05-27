@@ -1,0 +1,38 @@
+model_name=ZWF_final_v1
+
+root_path_name=./dataset/
+data_path_name=ETTh1.csv
+model_id_name="5-15-v1"
+data_name=ETTh1
+
+seq_len=96
+for pred_len in 96 192 336 720 12 24 36 48 60
+do
+for random_seed in 2024
+do
+    python -u run.py \
+      --is_training 1 \
+      --root_path $root_path_name \
+      --data_path $data_path_name \
+      --model_id $model_id_name'_'$seq_len'_'$pred_len \
+      --model $model_name \
+      --data $data_name \
+      --features M \
+      --seq_len $seq_len \
+      --pred_len $pred_len \
+      --enc_in 7 \
+      --cycle 24 \
+      --train_epochs 30 \
+      --patience 5 \
+      --dropout 0.5 \
+      --num_seasonal_components 4 \
+      --max_season_length 24 \
+      --trend_length 720 \
+      --hidden_dim 64 \
+      --hidden_dim_mask 64 \
+      --d_model 1024 \
+      --itr 1 --batch_size 256 --learning_rate 0.001 --random_seed $random_seed
+done
+done
+
+

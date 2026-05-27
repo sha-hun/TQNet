@@ -4,7 +4,7 @@ from pathlib import Path
 # -----------------------------
 # 配置参数
 # -----------------------------
-model_name = "修改loss版"
+model_name = "ZWF修改loss版"
 
 root_path_name = "./dataset/"
 data_name = "ETTh1_missing_20"

@@ -6,3 +6,6 @@ test_results/
 results/
 logs/
 .DS_Store
+checkpoints/
+result_log/
+results/

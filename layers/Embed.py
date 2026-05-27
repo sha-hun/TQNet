@@ -179,3 +179,47 @@ class DataEmbedding_inverted(nn.Module):
             x = self.value_embedding(torch.cat([x, x_mark.permute(0, 2, 1)], 1))
         # x: [Batch Variate d_model]
         return self.dropout(x)
+
+class PatchEmbedding(nn.Module):
+    def __init__(self, d_model, patch_len, stride, padding, dropout):
+        super(PatchEmbedding, self).__init__()
+        # Patching
+        self.patch_len = patch_len
+        self.stride = stride
+        self.padding_patch_layer = nn.ReplicationPad1d((0, padding))
+
+        # Backbone, Input encoding: projection of feature vectors onto a d-dim vector space
+        self.value_embedding = nn.Linear(patch_len, d_model, bias=False)
+
+        # Positional embedding
+        self.position_embedding = PositionalEmbedding(d_model)
+
+        # Residual dropout
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        # do patching
+        n_vars = x.shape[1]
+        x = self.padding_patch_layer(x)
+        x = x.unfold(dimension=-1, size=self.patch_len, step=self.stride)
+        x = torch.reshape(x, (x.shape[0] * x.shape[1], x.shape[2], x.shape[3]))
+        # Input encoding
+        x = self.value_embedding(x) + self.position_embedding(x)
+        return self.dropout(x), n_vars
+
+class PatchEmbed(nn.Module):
+    def __init__(self, args, num_p=1, d_model=None):
+        super(PatchEmbed, self).__init__()
+        self.num_p = num_p
+        self.patch = args.seq_len // self.num_p
+        self.d_model = args.d_model if d_model is None else d_model
+
+        self.proj = nn.Sequential(
+            nn.Linear(self.patch, self.d_model, False),
+            nn.Dropout(args.dropout)
+        )
+
+    def forward(self, x, x_mark):
+        x = torch.cat([x, x_mark], dim=-1).transpose(-1, -2)
+        x = self.proj(x.reshape(*x.shape[:-1], self.num_p, self.patch))
+        return x

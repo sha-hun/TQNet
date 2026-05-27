@@ -28,32 +28,33 @@ def data_provider(args, flag, use_miss=False):
         shuffle_flag = False
         drop_last = False
         batch_size = args.batch_size
-        freq = args.freq
+
     elif flag == 'pred':
         shuffle_flag = False
         drop_last = False
         batch_size = 1
-        freq = args.freq
-        Data = Dataset_Pred
+
+        # Data = Dataset_Pred
     else:
         shuffle_flag = True
         drop_last = True
         batch_size = args.batch_size
-        freq = args.freq
 
     # print(f"Preparing {flag}  features是{args.features}，freq是{freq}，cycle是{args.cycle} target是{args.target}")
 
+    # data_set = Data(
+    #     root_path=args.root_path,
+    #     data_path=args.data_path,
+    #     flag=flag,
+    #     size=[args.seq_len, args.label_len, args.pred_len],
+    #     timeenc=timeenc,
+    #     args= args,
+    # )
     data_set = Data(
-        root_path=args.root_path,
-        data_path=args.data_path,
         flag=flag,
         size=[args.seq_len, args.label_len, args.pred_len],
-        features=args.features,
-        target=args.target,
         timeenc=timeenc,
-        freq=freq,
-        cycle=args.cycle,
-        use_miss=args.use_miss
+        args = args,
     )
     print("use_miss=",args.use_miss," flag:", flag," len:", len(data_set))
     data_loader = DataLoader(

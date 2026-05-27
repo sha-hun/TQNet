@@ -4,9 +4,13 @@ import torch
 from exp.exp_main import Exp_Main
 import random
 import numpy as np
+import importlib
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Model family for Time Series Forecasting')
-
+    # parser = argparse.ArgumentParser(description='Model family for Time Series Forecasting')
+    # ==========================================
+    # 1：Only define the globally common parameters.
+    # ==========================================
+    parser = argparse.ArgumentParser(description='Time Series Forecasting', allow_abbrev=False)
     # random seed
     parser.add_argument('--random_seed', type=int, default=2024, help='random seed')
 
@@ -56,9 +60,20 @@ if __name__ == '__main__':
     parser.add_argument('--seg_len', type=int, default=48, help='segment length')
     parser.add_argument('--channel_id', type=int, default=1, help='Whether to enable channel position encoding')
 
+    # SEED
+    parser.add_argument('--enable_env', type=int, default=0, help='enable env weight')
+    parser.add_argument('--alpha', type=float, default=0.1, help='KNN for Graph Construction')
+    parser.add_argument('--top_p', type=float, default=0.5, help='Dynamic Routing in MoE')
+    parser.add_argument('--pos', type=int, choices=[0, 1], default=1, help='Positional Embedding. Set pos to 0 or 1')
+    parser.add_argument('--use_dropout', type=float, default=0.0, help='Use dropout')
+
+    #DUET
+    parser.add_argument('--k', type=int, default=1, help='DUET cluster k')
+
     # Formers 
     parser.add_argument('--embed_type', type=int, default=0, help='0: default 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal embedding 3: value embedding + positional embedding 4: value embedding')
-    parser.add_argument('--enc_in', type=int, default=7, help='encoder input size') # DLinear with --individual, use this hyperparameter as the number of channels
+    # parser.add_argument('--enc_in', type=int, default=7, help='encoder input size') # DLinear with --individual, use this hyperparameter as the number of channels
+    parser.add_argument('--enc_in', type=int, required=True, help='encoder input size')
     parser.add_argument('--dec_in', type=int, default=7, help='decoder input size')
     parser.add_argument('--c_out', type=int, default=7, help='output size')
     parser.add_argument('--d_model', type=int, default=512, help='dimension of model')
@@ -79,9 +94,9 @@ if __name__ == '__main__':
     parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data')
 
     # optimization
-    parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
+    parser.add_argument('--num_workers', type=int, default=2, help='data loader num workers')
     parser.add_argument('--itr', type=int, default=1, help='experiments times')
-    parser.add_argument('--train_epochs', type=int, default=30, help='train epochs')
+    parser.add_argument('--train_epochs', type=int, default=20, help='train epochs')
     parser.add_argument('--batch_size', type=int, default=128, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=5, help='early stopping patience')
     parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
@@ -99,39 +114,65 @@ if __name__ == '__main__':
     parser.add_argument('--test_flop', action='store_true', default=False, help='See utils/tools for usage')
 
 
-    parser.add_argument('--use_miss', action='store_true', default=False, help='use missing value features')
+
     parser.add_argument('--max_norm', type=int, default=5, help='maximum gradient norm for clipping')
     parser.add_argument('--logger_uique_id', type=int, default=1, help='unique id for logger to avoid conflicts when using multiple loggers')
 
-    # args = parser.parse_args()
-    # 解析已知参数，未知参数放在 unknown
-    args, unknown = parser.parse_known_args()
-    # print(f"Parsed unknown args: {unknown}")
-    # 处理 unknown 参数，转换成字典
-    def unknown_to_namespace(unknown_list):
-        it = iter(unknown_list)
-        d = {}
-        for k in it:
-            if k.startswith('--'):
-                value = next(it)
-                # 尝试转换成 int 或 float，如果失败就保留字符串
-                if value.isdigit():
-                    value = int(value)
-                else:
-                    try:
-                        value = float(value)
-                    except ValueError:
-                        pass
-                d[k[2:]] = value
-        return argparse.Namespace(**d)
 
-    unknown_ns = unknown_to_namespace(unknown)
-    # print(f"Parsed unknown args: {unknown_ns}")
-    # 合并两个 Namespace 对象
-    for key, value in vars(unknown_ns).items():
-        setattr(args, key, value)
-    # 现在 args 是一个 Namespace，包含已知和未知参数
+    # action='store_true' 的意思是：只要写了这个参数，就是 True；不写，默认就是 False
+    parser.add_argument('--use_miss', action='store_true', help='use missing value features')
 
+    # ==========================================
+    # 2：Pre-parsing (only parsing out the name of the model)
+    # ==========================================
+    temp_args, _ = parser.parse_known_args()
+
+    # ==========================================
+    # 3：Dynamic import of corresponding model and insertion of its parameters into parser
+    # ==========================================
+    model_name = temp_args.model
+    try:
+        model_module = importlib.import_module(f'models.{model_name}')
+        ModelClass = getattr(model_module, 'Model')
+    except ImportError:
+        raise ValueError(f"无法找到模型: {model_name}，请检查 models/{model_name}.py 是否存在")
+
+    # ==========================================
+    # 如果模型类中定义了专属的参数添加函数，就调用它（处理一些sh没定义的默认参数）
+    # ==========================================
+    if hasattr(ModelClass, 'add_model_specific_args'):
+        # 🌟 路线 A：新模型（已重构）
+        parser = ModelClass.add_model_specific_args(parser)
+        
+        # 严格解析：因为参数已经提前定义好了，所以这里用 parse_args()。
+        # 如果拼写错误输入了未知的参数，它会直接报错提醒你，极其安全！
+        args = parser.parse_args() 
+        
+    else:
+        # 🕰️ 路线 B：没有专属的参数添加函数，就接收全部的参数
+        args, unknown = parser.parse_known_args()
+        
+        # 处理 unknown 参数，转换成字典
+        def unknown_to_namespace(unknown_list):
+            it = iter(unknown_list)
+            d = {}
+            for key in it:
+                if key.startswith('--'):
+                    value = next(it)
+                    if value.isdigit():
+                        value = int(value)
+                    else:
+                        try:
+                            value = float(value)
+                        except ValueError:
+                            pass
+                    d[key[2:]] = value
+            return argparse.Namespace(**d)
+
+        unknown_ns = unknown_to_namespace(unknown)
+        # 合并两个 Namespace 对象
+        for key, value in vars(unknown_ns).items():
+            setattr(args, key, value)
 
     # random seed
     fix_seed = args.random_seed
@@ -149,6 +190,14 @@ if __name__ == '__main__':
         args.device_ids = [int(id_) for id_ in device_ids]
         args.gpu = args.device_ids[0]
 
+    if args.use_gpu and not args.use_multi_gpu:
+        # 检测当前环境下 PyTorch 真正能看到的 GPU 数量
+        available_gpus = torch.cuda.device_count()
+        # 如果当前被设置成了单卡环境（比如被环境变量限制了），但你指定的 gpu 索引超出了范围
+        if args.gpu >= available_gpus:
+            print(f"⚠️ 警告: 你指定了 --gpu {args.gpu}，但当前环境仅有 {available_gpus} 块可用GPU。")
+            assert f"🔄 自动将 args.gpu 重置为 0，以防止模型加载时发生反序列化崩溃。"
+            
     # print('Args in experiment:')
     # print(args)
 
@@ -156,7 +205,6 @@ if __name__ == '__main__':
     logger = get_logger(args)
 
     Exp = Exp_Main
-
 
     if args.is_training:
         for ii in range(args.itr):# experiments times, default 1

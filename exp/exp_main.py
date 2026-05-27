@@ -1,7 +1,7 @@
 from data_provider.data_factory import data_provider
 from exp.exp_basic import Exp_Basic
-from models import Informer, Autoformer, Transformer, DLinear, Linear, NLinear, PatchTST, SegRNN, CycleNet, ZWF修改loss版, \
-    iTransformer, TimeXer, TQNet, TQDLinear, TQPatchTST, TQiTransformer, ZWF, TQNet_1, TQNet_2
+# from models import Informer, Autoformer, Transformer, DLinear, Linear, NLinear, PatchTST, SegRNN, CycleNet, ZWF修改loss版, \
+#     iTransformer, TimeXer, TQNet, TQDLinear, TQPatchTST, TQiTransformer, ZWF, ZWF_TQNet_1 , ZWF_TQNet_2
 from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
 from utils.metrics import metric
 
@@ -27,31 +27,25 @@ class Exp_Main(Exp_Basic):
         self.enc_in = args.enc_in
 
         self.logger = logging.getLogger(f"logger_{args.logger_uique_id}")
+        self.args = args
 
     def _build_model(self):
-        model_dict = {
-            'Autoformer': Autoformer,
-            'Transformer': Transformer,
-            'Informer': Informer,
-            'DLinear': DLinear,
-            'NLinear': NLinear,
-            'Linear': Linear,
-            'PatchTST': PatchTST,
-            'SegRNN': SegRNN,
-            'CycleNet': CycleNet,
-            'iTransformer': iTransformer,
-            'TimeXer': TimeXer,
-            'TQNet': TQNet,
-            'TQDLinear': TQDLinear,
-            'TQPatchTST': TQPatchTST,
-            'TQiTransformer': TQiTransformer,
-            'ZWF':ZWF,
-            'TQNet_1': TQNet_1,
-            'TQNet_2': TQNet_2,
-            '修改loss版': ZWF修改loss版
-        }
-        model = model_dict[self.args.model].Model(self.args).float()
-
+        try:
+            # 动态导入 models 文件夹下与模型名同名的模块
+            import importlib
+            module = importlib.import_module(f"models.{self.args.model}")
+            # 从模块里取 Model 类
+            model_class = getattr(module, "Model")
+            model = model_class(self.args).float()
+            print(f"✅Successfully loaded model {self.args.model}.")
+        except ModuleNotFoundError:
+            # 模块不存在时，使用默认模型
+            print("❌Warning!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print(f"❌Warning: model {self.args.model} not found. Using default ZWF_TQNet_1.")
+            raise ModuleNotFoundError(f"Model {self.args.model} not found in models folder.")
+            # default_module = importlib.import_module("models.ZWF_TQNet_1")
+            # model_class = getattr(default_module, "Model")
+            # model = model_class(self.args).float()
         if self.args.use_multi_gpu and self.args.use_gpu:
             model = nn.DataParallel(model, device_ids=self.args.device_ids)
 
@@ -72,51 +66,54 @@ class Exp_Main(Exp_Basic):
         return criterion
 
     def vali(self, vali_data, vali_loader, criterion):
+
+        self.model.mode_now = "vali"
         total_loss = []
         self.model.eval()
         with torch.no_grad():
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_cycle) in enumerate(vali_loader):
+                # 1. 数据统一迁移至设备 (修复了原代码 batch_y 漏掉 to(device) 的问题)
                 batch_x = batch_x.float().to(self.device)
-                batch_y = batch_y.float()
-
+                batch_y = batch_y.float().to(self.device)
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
                 batch_cycle = batch_cycle.int().to(self.device)
 
-                # decoder input
+                # 2. 构建 Decoder 输入
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
-                # encoder - decoder
-                if self.args.use_amp:
-                    with torch.cuda.amp.autocast():
-                        if "ZWF" in self.args.model:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                        elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
-                            outputs = self.model(batch_x, batch_cycle)
-                        elif any(substr in self.args.model for substr in
-                                 {'Linear', 'MLP', 'SegRNN', 'TST'}):
-                            outputs = self.model(batch_x)
-                        else:
-                            if self.args.output_attention:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                            else:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                else:
-                    if "ZWF" in self.args.model:
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                    elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
-                        outputs = self.model(batch_x, batch_cycle)
-                    elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST'}):
-                        outputs = self.model(batch_x)
-                    else:
+
+                # 💡 3. 构建全能参数字典
+                model_kwargs = {
+                    "x_enc": batch_x,
+                    "x_mark_enc": batch_x_mark,
+                    "x_dec": dec_inp,
+                    "x_mark_dec": batch_y_mark,
+                    "batch_y": batch_y,
+                    "cycle_index": batch_cycle
+                }
+
+                additional_loss = None
+
+                with torch.cuda.amp.autocast(enabled=self.args.use_amp):
+                    outputs = self.model(**model_kwargs)
+
+                    if isinstance(outputs, tuple) or isinstance(outputs, list):
                         if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                            # 假设需要输出 attention 的模型返回 (outputs, attention_weights)
+                            outputs = outputs[0]
                         else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                            # 带额外 Loss 的模型返回 (outputs, additional_loss)
+                            outputs, additional_loss = outputs[0], outputs[1]
+
+
+
+                # 5. 截取特征维度与预测长度
                 f_dim = -1 if self.args.features == 'MS' else 0
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                batch_y = batch_y[:, -self.args.pred_len:, f_dim:]
 
+                # 6. 转回 CPU 供后续计算 Validation Loss 记录
                 pred = outputs.detach().cpu()
                 true = batch_y.detach().cpu()
 
@@ -124,8 +121,17 @@ class Exp_Main(Exp_Basic):
                     print("Warning: Pred contains NaN values!")
                 if np.isnan(true.numpy()).any():
                     print("Warning: True contains NaN values!")
-                
+
                 loss = criterion(pred, true)
+                if additional_loss is not None:
+                    if hasattr(additional_loss, 'detach'):
+                        additional_loss = additional_loss.detach().cpu().item() 
+                    else:
+                        # 如果已经是 float 了，就直接保持原样
+                        additional_loss = float(additional_loss)
+                    loss = loss + additional_loss
+
+
                 # print("loss的类型", type(loss), "loss的值", loss.item())
                 if np.isnan(loss.item()).any():
                     print("Warning: Loss is NaN!")
@@ -139,6 +145,8 @@ class Exp_Main(Exp_Basic):
         return total_loss
 
     def train(self, setting):
+        
+        self.model.mode_now = "train"
 
         train_data, train_loader = self._get_data(flag='train')
         vali_data, vali_loader = self._get_data(flag='val')
@@ -175,58 +183,56 @@ class Exp_Main(Exp_Basic):
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_cycle) in enumerate(train_loader):
                 iter_count += 1
                 model_optim.zero_grad()
-                batch_x = batch_x.float().to(self.device)               # b,seq_len,4
+                
+                # 1. 数据迁移至设备
+                batch_x = batch_x.float().to(self.device)               
+                batch_y = batch_y.float().to(self.device)               
+                batch_x_mark = batch_x_mark.float().to(self.device)     
+                batch_y_mark = batch_y_mark.float().to(self.device)     
+                batch_cycle = batch_cycle.int().to(self.device)         
 
-                batch_y = batch_y.float().to(self.device)               # b,seq_len + label_len,c
-                batch_x_mark = batch_x_mark.float().to(self.device)     # b,seq_len,4
-                batch_y_mark = batch_y_mark.float().to(self.device)     # b,seq_len + label_len,4
-                batch_cycle = batch_cycle.int().to(self.device)         # b
-
-                # decoder input
+                # 2. 构建 Decoder 输入
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
 
-                # encoder - decoder
-                if self.args.use_amp:
-                    with torch.cuda.amp.autocast():
-                        if "ZWF" in self.args.model:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark,batch_y, batch_cycle)
-                        elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
-                            outputs = self.model(batch_x, batch_cycle)
-                        elif any(substr in self.args.model for substr in
-                                 {'Linear', 'MLP', 'SegRNN', 'TST'}):
-                            outputs = self.model(batch_x)
-                        else:
-                            if self.args.output_attention:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                            else:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                model_kwargs = {
+                    "x_enc": batch_x,
+                    "x_mark_enc": batch_x_mark,
+                    "x_dec": dec_inp,
+                    "x_mark_dec": batch_y_mark,
+                    "batch_y": batch_y,  # 模型需要的真实标签
+                    "cycle_index": batch_cycle  # CycleNet 和 TQNet 需要的周期索引
+                }
+                
+                additional_loss = None
 
-                        f_dim = -1 if self.args.features == 'MS' else 0
-                        outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                        batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                        loss = criterion(outputs, batch_y)
-                        train_loss.append(loss.item())
-                else:
-                    if "ZWF" in self.args.model:
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                    elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
-                        outputs = self.model(batch_x, batch_cycle)
-                    elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST'}):
-                        outputs = self.model(batch_x)
-                    else:
+                with torch.cuda.amp.autocast(enabled=self.args.use_amp):
+            
+                    outputs = self.model(**model_kwargs)
+                    
+                    if isinstance(outputs, tuple) or isinstance(outputs, list):
                         if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-
+                            # 假设需要输出 attention 的模型返回 (outputs, attention_weights)
+                            outputs = outputs[0]
                         else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark, batch_y)
+                            # 带额外 Loss 的模型返回 (outputs, additional_loss)
+                            outputs, additional_loss = outputs[0], outputs[1]
 
-                    # print(outputs.shape,batch_y.shape)
+                    # 6. 截取预测部分与特征维度
                     f_dim = -1 if self.args.features == 'MS' else 0
                     outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                    batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                    loss = criterion(outputs, batch_y)
-                    train_loss.append(loss.item())
+                    batch_y_target = batch_y[:, -self.args.pred_len:, f_dim:]
+
+                    # 7. 计算 Loss
+                    loss = criterion(outputs, batch_y_target)
+                    if additional_loss is not None:
+                        if torch.is_tensor(additional_loss):
+                            loss = loss + additional_loss.to(self.device)
+                        else:
+                            # 如果是 float，直接加就行，不需要 to(device)
+                            loss = loss + additional_loss
+
+                train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
                     # print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
@@ -298,6 +304,7 @@ class Exp_Main(Exp_Basic):
         return self.model
 
     def test(self, setting, test=0):
+        self.model.mode_now = "test"
         test_data, test_loader = self._get_data(flag='test')
 
         if test:
@@ -315,49 +322,43 @@ class Exp_Main(Exp_Basic):
         self.model.eval()
         with torch.no_grad():
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_cycle) in enumerate(test_loader):
+                # 1. 数据迁移至设备
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
-
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
                 batch_cycle = batch_cycle.int().to(self.device)
 
-                # decoder input
+                # 2. 构建 Decoder 输入
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
-                # encoder - decoder
-                if self.args.use_amp:
-                    with torch.cuda.amp.autocast():
-                        if "ZWF" in self.args.model:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                        elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
-                            outputs = self.model(batch_x, batch_cycle)
-                        elif any(substr in self.args.model for substr in
-                                 {'Linear', 'MLP', 'SegRNN', 'TST'}):
-                            outputs = self.model(batch_x)
-                        else:
-                            if self.args.output_attention:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                            else:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                else:
-                    if "ZWF" in self.args.model:
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                    elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
-                        outputs = self.model(batch_x, batch_cycle)
-                    elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST'}):
-                        outputs = self.model(batch_x)
-                    else:
-                        if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
 
-                        else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                # 💡 3. 构建全能参数字典
+                model_kwargs = {
+                    "x_enc": batch_x,
+                    "x_mark_enc": batch_x_mark,
+                    "x_dec": dec_inp,
+                    "x_mark_dec": batch_y_mark,
+                    "batch_y": batch_y, 
+                    "cycle_index": batch_cycle,
+                }
 
+
+                # 💡 4. 一键处理 AMP 和 前向传播
+                with torch.cuda.amp.autocast(enabled=self.args.use_amp):
+                    outputs = self.model(**model_kwargs)
+                    
+                    # 统一处理返回值：不管返回的是 (output, loss) 还是 (output, attention)
+                    # 我们在 test 阶段只关心第一个预测结果
+                    if isinstance(outputs, tuple) or isinstance(outputs, list):
+                        outputs = outputs[0]
+
+                # 5. 截取特征维度与预测长度
                 f_dim = -1 if self.args.features == 'MS' else 0
-                # print(outputs.shape,batch_y.shape)
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                batch_y = batch_y[:, -self.args.pred_len:, f_dim:]
+
+                # 6. 转换回 Numpy 并记录
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
 
@@ -430,44 +431,38 @@ class Exp_Main(Exp_Basic):
         self.model.eval()
         with torch.no_grad():
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_cycle) in enumerate(pred_loader):
+                # 1. 数据统一迁移至设备 (修复了原代码 batch_y 未统一 to device 的问题)
                 batch_x = batch_x.float().to(self.device)
-                batch_y = batch_y.float()
+                batch_y = batch_y.float().to(self.device)
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
                 batch_cycle = batch_cycle.int().to(self.device)
 
-                # decoder input
-                dec_inp = torch.zeros([batch_y.shape[0], self.args.pred_len, batch_y.shape[2]]).float().to(
-                    batch_y.device)
+                # 2. 构建 Decoder 输入
+                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
-                # encoder - decoder
-                if self.args.use_amp:
-                    with torch.cuda.amp.autocast():
-                        if "ZWF" in self.args.model:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                        elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
-                            outputs = self.model(batch_x, batch_cycle)
-                        elif any(substr in self.args.model for substr in
-                                 {'Linear', 'MLP', 'SegRNN', 'TST'}):
-                            outputs = self.model(batch_x)
-                        else:
-                            if self.args.output_attention:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                            else:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                else:
-                    if "ZWF" in self.args.model:
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                    elif any(substr in self.args.model for substr in {'CycleNet', 'TQ'}):
-                        outputs = self.model(batch_x, batch_cycle)
-                    elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST'}):
-                        outputs = self.model(batch_x)
-                    else:
-                        if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                        else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                pred = outputs.detach().cpu().numpy()  # .squeeze()
+
+                # 💡 3. 构建全能参数字典
+                model_kwargs = {
+                    "x_enc": batch_x,
+                    "x_mark_enc": batch_x_mark,
+                    "x_dec": dec_inp,
+                    "x_mark_dec": batch_y_mark,
+                    "batch_y": batch_y,
+                    "cycle_index": batch_cycle,
+                }
+
+
+                # 💡 4. 一键处理 AMP 和 前向传播
+                with torch.cuda.amp.autocast(enabled=self.args.use_amp):
+                    outputs = self.model(**model_kwargs)
+                    
+                    # 统一处理返回值：预测阶段我们只关心预测矩阵本身
+                    if isinstance(outputs, tuple) or isinstance(outputs, list):
+                        outputs = outputs[0]
+
+                # 5. 转换回 Numpy 并记录预测结果
+                pred = outputs.detach().cpu().numpy()  # .squeeze() 如果你需要的话
                 preds.append(pred)
 
         preds = np.array(preds)

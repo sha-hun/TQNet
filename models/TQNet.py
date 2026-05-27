@@ -38,9 +38,10 @@ class Model(nn.Module):
         )
 
 
-    def forward(self, x, cycle_index):
+    def forward(self, x_enc, cycle_index, **kwargs):
         # cycle_index shape: (b,) 代表每个样本对应的cycle索引，范围是[0, cycle_len-1]，表示输入序列的起始时间点在周期中的位置
         # instance norm
+        x = x_enc
         if self.use_revin:
             seq_mean = torch.mean(x, dim=1, keepdim=True)
             seq_var = torch.var(x, dim=1, keepdim=True) + 1e-5
@@ -73,6 +74,6 @@ class Model(nn.Module):
         if self.use_revin:
             output = output * torch.sqrt(seq_var) + seq_mean
         
-        return output
+        return output,None
 
 
